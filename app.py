@@ -18,6 +18,7 @@ import joblib
 import numpy as np
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 
 ROOT = Path(__file__).resolve().parent
 
@@ -32,6 +33,7 @@ SHAP_IMPORTANCE_PATH = ROOT / "outputs" / "explainability" / "shap_feature_impor
 PREDICTION_PLOT_PATH = ROOT / "outputs" / "figures" / "test_actual_vs_predicted.png"
 SHAP_BEESWARM_PATH = ROOT / "outputs" / "figures" / "shap_summary_beeswarm.png"
 SHAP_BAR_PATH = ROOT / "outputs" / "figures" / "shap_summary_bar.png"
+APP_PUBLIC_URL = "https://lk-tourism-arrival-predictor.streamlit.app/"
 
 FEATURE_DESCRIPTIONS = {
     "year": "Calendar year of the month being predicted.",
@@ -353,6 +355,132 @@ def render_soft_card(title: str, description: str) -> None:
     )
 
 
+def inject_seo_metadata(summary: dict) -> None:
+    """Inject SEO metadata into the parent document head for Streamlit deployments."""
+    description = (
+        "Sri Lanka Tourism Arrival Predictor: forecast monthly tourist arrivals using traditional "
+        "machine learning with SHAP explainability, based on SLTDA public data."
+    )
+    keywords = (
+        "Sri Lanka tourism forecast, tourist arrivals prediction, Streamlit machine learning app, "
+        "traditional ML, SHAP explainability, SLTDA dataset, Kalhara J.A.K."
+    )
+    coverage = f"{summary['date_range']['start']} to {summary['date_range']['end']}"
+
+    schema_payload = {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Sri Lanka Tourism Arrival Predictor",
+        "url": APP_PUBLIC_URL,
+        "description": description,
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "creator": {"@type": "Person", "name": "Kalhara J.A.K."},
+        "author": {"@type": "Person", "name": "Kalhara J.A.K."},
+        "about": "Monthly tourist arrival forecasting for Sri Lanka using traditional machine learning and SHAP.",
+        "isAccessibleForFree": True,
+        "dataset": {
+            "@type": "Dataset",
+            "name": "Sri Lanka Monthly Tourist Arrivals (SLTDA)",
+            "description": f"Public SLTDA monthly arrivals statistics, coverage {coverage}.",
+            "url": summary["source_base_url"],
+        },
+    }
+
+    meta_payload = {
+        "title": "Sri Lanka Tourism Arrival Predictor | Traditional ML + SHAP",
+        "description": description,
+        "keywords": keywords,
+        "author": "Kalhara J.A.K. (214097U)",
+        "canonical": APP_PUBLIC_URL,
+        "og_type": "website",
+        "og_url": APP_PUBLIC_URL,
+        "og_title": "Sri Lanka Tourism Arrival Predictor",
+        "og_description": description,
+        "twitter_card": "summary_large_image",
+        "twitter_title": "Sri Lanka Tourism Arrival Predictor",
+        "twitter_description": description,
+        "robots": "index,follow",
+        "schema_json": json.dumps(schema_payload),
+    }
+
+    # Script runs inside a component iframe and updates parent <head> safely.
+    components.html(
+        f"""
+        <script>
+        (function() {{
+          const head = window.parent?.document?.head;
+          if (!head) return;
+
+          const meta = {json.dumps(meta_payload)};
+
+          function upsertMetaByName(name, content) {{
+            if (!name || !content) return;
+            let el = head.querySelector(`meta[name="${{name}}"]`);
+            if (!el) {{
+              el = window.parent.document.createElement("meta");
+              el.setAttribute("name", name);
+              head.appendChild(el);
+            }}
+            el.setAttribute("content", content);
+          }}
+
+          function upsertMetaByProperty(property, content) {{
+            if (!property || !content) return;
+            let el = head.querySelector(`meta[property="${{property}}"]`);
+            if (!el) {{
+              el = window.parent.document.createElement("meta");
+              el.setAttribute("property", property);
+              head.appendChild(el);
+            }}
+            el.setAttribute("content", content);
+          }}
+
+          function upsertCanonical(href) {{
+            if (!href) return;
+            let link = head.querySelector('link[rel="canonical"]');
+            if (!link) {{
+              link = window.parent.document.createElement("link");
+              link.setAttribute("rel", "canonical");
+              head.appendChild(link);
+            }}
+            link.setAttribute("href", href);
+          }}
+
+          function upsertJsonLd(schemaJson) {{
+            if (!schemaJson) return;
+            let scriptTag = head.querySelector('script[type="application/ld+json"][data-seo="lk-tourism-app"]');
+            if (!scriptTag) {{
+              scriptTag = window.parent.document.createElement("script");
+              scriptTag.setAttribute("type", "application/ld+json");
+              scriptTag.setAttribute("data-seo", "lk-tourism-app");
+              head.appendChild(scriptTag);
+            }}
+            scriptTag.textContent = schemaJson;
+          }}
+
+          window.parent.document.title = meta.title;
+          upsertMetaByName("description", meta.description);
+          upsertMetaByName("keywords", meta.keywords);
+          upsertMetaByName("author", meta.author);
+          upsertMetaByName("robots", meta.robots);
+          upsertMetaByName("twitter:card", meta.twitter_card);
+          upsertMetaByName("twitter:title", meta.twitter_title);
+          upsertMetaByName("twitter:description", meta.twitter_description);
+          upsertMetaByProperty("og:type", meta.og_type);
+          upsertMetaByProperty("og:url", meta.og_url);
+          upsertMetaByProperty("og:title", meta.og_title);
+          upsertMetaByProperty("og:description", meta.og_description);
+          upsertCanonical(meta.canonical);
+          upsertJsonLd(meta.schema_json);
+        }})();
+        </script>
+        """,
+        height=0,
+        width=0,
+    )
+
+
 @st.cache_data
 def load_data() -> pd.DataFrame:
     """Load and return raw monthly arrivals data."""
@@ -528,6 +656,7 @@ def main() -> None:
     latest_date = raw_df["date"].max()
     latest_arrivals = float(raw_df["arrivals"].iloc[-1])
 
+    inject_seo_metadata(summary)
     render_hero(summary, best_model_name)
     st.markdown('<div class="mini-note"><strong>Quick start:</strong> Choose your forecast inputs in the left panel, click <code>Generate Forecast</code>, then use tabs to inspect predictions and SHAP explanations.</div>', unsafe_allow_html=True)
 
