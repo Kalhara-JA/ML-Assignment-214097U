@@ -1,0 +1,40 @@
+{
+  "dataset_name": "Sri Lanka Monthly Tourist Arrivals",
+  "source_owner": "Sri Lanka Tourism Development Authority (SLTDA)",
+  "source_collection": "Monthly Tourist Arrivals Reports",
+  "source_base_url": "https://www.sltda.gov.lk/en/statistics",
+  "n_rows": 120,
+  "n_features_raw": 6,
+  "date_range": {
+    "start": "2016-01-01",
+    "end": "2025-12-01"
+  },
+  "latest_public_data_year": 2025,
+  "missing_values_total": 0,
+  "yearly_totals": {
+    "2016": 1785374,
+    "2017": 2030702,
+    "2018": 2333796,
+    "2019": 2103372,
+    "2020": 538817,
+    "2021": 202412,
+    "2022": 737043,
+    "2023": 1525907,
+    "2024": 2037796,
+    "2025": 1991125
+  },
+  "source_urls": {
+    "2016": "https://www.sltda.gov.lk/en/monthly-tourist-arrivals-reports-2017",
+    "2017": "https://www.sltda.gov.lk/en/monthly-tourist-arrivals-reports-2017",
+    "2018": "https://www.sltda.gov.lk/en/monthly-tourist-arrivals-reports-2018",
+    "2019": "https://www.sltda.gov.lk/en/monthly-tourist-arrivals-reports-2019",
+    "2020": "https://www.sltda.gov.lk/en/monthly-tourist-arrivals-reports-2020",
+    "2021": "https://www.sltda.gov.lk/en/monthly-tourist-arrivals-reports-2021",
+    "2022": "https://www.sltda.gov.lk/en/monthly-tourist-arrivals-reports-2022",
+    "2023": "https://www.sltda.gov.lk/en/monthly-tourist-arrivals-reports-2023",
+    "2024": "https://www.sltda.gov.lk/en/monthly-tourist-arrivals-reports-2024",
+    "2025": "https://www.sltda.gov.lk/en/monthly-tourist-arrivals-reports-2025"
+  },
+  "collected_on": "2026-02-19",
+  "csv_path": "data/raw/sri_lanka_tourism_monthly_arrivals_2016_2025.csv"
+}
