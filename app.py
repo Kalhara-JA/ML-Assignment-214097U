@@ -128,6 +128,231 @@ def shap_about_table(shap_df: pd.DataFrame) -> pd.DataFrame:
     return top[["rank", "feature", "mean_abs_shap", "why_it_matters"]]
 
 
+def inject_custom_styles() -> None:
+    """Apply app-wide styling for a more guided, beginner-friendly interface."""
+    st.markdown(
+        """
+        <style>
+        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap');
+
+        :root {
+            --brand-ink: #10324a;
+            --brand-ocean: #1f6f8b;
+            --brand-deep: #0f4c5c;
+            --brand-accent: #f4a259;
+            --paper: #ffffff;
+            --paper-soft: #f6f9fc;
+            --line: #d6e2ec;
+            --text-main: #1b2a34;
+            --text-soft: #506273;
+        }
+
+        html, body, [data-testid="stAppViewContainer"] {
+            font-family: "Manrope", sans-serif;
+            color: var(--text-main);
+            background:
+                radial-gradient(circle at 15% 12%, #e0eef8 0%, transparent 32%),
+                radial-gradient(circle at 90% 2%, #fef3df 0%, transparent 28%),
+                linear-gradient(180deg, #f7fbff 0%, #eef4f8 100%);
+        }
+        header[data-testid="stHeader"] {
+            background: linear-gradient(180deg, #f7fbff 0%, #eef4f8 100%) !important;
+            border-bottom: 1px solid #dbe6ee;
+        }
+        [data-testid="stDecoration"] {
+            display: none !important;
+        }
+        [data-testid="stAppViewContainer"] .main .block-container {
+            padding-top: 0.7rem !important;
+            padding-bottom: 2rem;
+        }
+        [data-testid="stSidebar"] > div:first-child {
+            padding-top: 0.7rem !important;
+        }
+
+        h1, h2, h3, h4, [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 {
+            font-family: "Space Grotesk", sans-serif;
+            letter-spacing: -0.01em;
+        }
+
+        [data-testid="stSidebar"] {
+            background: linear-gradient(180deg, #12344f 0%, #1f5d74 100%);
+            border-right: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        [data-testid="stSidebar"] * {
+            color: #f7fbff;
+        }
+        [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {
+            color: #e7f0f5;
+        }
+        [data-testid="stSidebar"] code {
+            color: #15364c !important;
+            background: #e8eef5 !important;
+            border: 1px solid #d2deea;
+            border-radius: 6px;
+            padding: 0.08rem 0.35rem;
+        }
+        [data-testid="stSidebar"] .mini-note,
+        [data-testid="stSidebar"] .mini-note * {
+            color: #4f3e2b !important;
+        }
+        [data-testid="stSidebar"] .mini-note code {
+            color: #15364c !important;
+            background: #f3f7fb !important;
+            border: 1px solid #d9e4ef;
+        }
+
+        .hero-wrap {
+            background: linear-gradient(120deg, #0f3a57 0%, #1f6f8b 55%, #2e8d78 100%);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            border-radius: 18px;
+            padding: 1.2rem 1.25rem;
+            color: #f8fcff;
+            box-shadow: 0 14px 30px rgba(14, 55, 80, 0.18);
+            animation: fadeUp 0.5s ease-out;
+        }
+
+        .hero-title {
+            margin: 0;
+            font-size: clamp(1.35rem, 2.7vw, 2.05rem);
+            line-height: 1.2;
+            color: #ffffff;
+        }
+
+        .hero-sub {
+            margin-top: 0.55rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.97rem;
+            color: #ddedf7;
+            max-width: 92ch;
+        }
+
+        .chip-row {
+            display: flex;
+            gap: 0.45rem;
+            flex-wrap: wrap;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 999px;
+            padding: 0.22rem 0.6rem;
+            font-size: 0.77rem;
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.12);
+            color: #f8fcff;
+        }
+
+        .soft-card {
+            background: var(--paper);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 0.9rem 1rem;
+            box-shadow: 0 4px 14px rgba(13, 49, 71, 0.07);
+            margin: 0.35rem 0 0.65rem;
+            animation: fadeUp 0.45s ease-out;
+        }
+
+        .soft-card h4 {
+            margin: 0 0 0.35rem;
+            color: var(--brand-ink);
+            font-size: 1rem;
+        }
+
+        .soft-card p {
+            margin: 0;
+            color: var(--text-soft);
+            font-size: 0.92rem;
+        }
+
+        .mini-note {
+            background: #fef8ee;
+            border-left: 4px solid var(--brand-accent);
+            border-radius: 10px;
+            padding: 0.65rem 0.75rem;
+            margin: 0.4rem 0 0.8rem;
+            color: #5b4832;
+            font-size: 0.9rem;
+        }
+
+        div[data-testid="stMetricValue"] {
+            font-size: 1.55rem;
+            color: var(--brand-ink);
+        }
+
+        div.stButton > button, div.stDownloadButton > button {
+            border-radius: 10px;
+            border: none;
+            font-weight: 700;
+            background: linear-gradient(110deg, #156080 0%, #2b8a78 100%);
+            color: #ffffff;
+            box-shadow: 0 6px 14px rgba(27, 104, 136, 0.28);
+            transition: transform 0.12s ease, box-shadow 0.12s ease;
+        }
+        div.stButton > button:hover, div.stDownloadButton > button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 9px 18px rgba(26, 102, 132, 0.36);
+        }
+
+        div[data-testid="stDataFrame"], div[data-testid="stTable"] {
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #dce6ef;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_hero(summary: dict, best_model_name: str) -> None:
+    """Render the top hero section with context and quick facts."""
+    coverage = summary["date_range"]
+    st.markdown(
+        f"""
+        <div class="hero-wrap">
+            <h1 class="hero-title">Sri Lanka Tourism Arrival Predictor</h1>
+            <p class="hero-sub">
+                Forecast monthly tourist arrivals with traditional machine learning and understand feature impact using SHAP.
+                This interface is designed for beginner-friendly prediction and explanation workflows.
+            </p>
+            <div class="chip-row">
+                <span class="chip">Best Model: {best_model_name.replace("_", " ").title()}</span>
+                <span class="chip">Coverage: {coverage["start"]} to {coverage["end"]}</span>
+                <span class="chip">Data Source: SLTDA</span>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_soft_card(title: str, description: str) -> None:
+    """Render a compact informational card used throughout the app."""
+    st.markdown(
+        f"""
+        <div class="soft-card">
+            <h4>{title}</h4>
+            <p>{description}</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 @st.cache_data
 def load_data() -> pd.DataFrame:
     """Load and return raw monthly arrivals data."""
@@ -251,17 +476,13 @@ def build_required_artifacts() -> tuple[bool, str]:
 
 def main() -> None:
     """Render and run the Streamlit application."""
-    st.set_page_config(page_title="Sri Lanka Tourism Arrival Predictor", page_icon="LKA", layout="wide")
-    st.markdown(
-        """
-        <style>
-        div[data-testid="stMetricValue"] { font-size: 1.6rem; }
-        .small-note { color: #6b7280; font-size: 0.9rem; }
-        </style>
-        """,
-        unsafe_allow_html=True,
+    st.set_page_config(
+        page_title="Sri Lanka Tourism Arrival Predictor",
+        page_icon="LKA",
+        layout="wide",
+        initial_sidebar_state="expanded",
     )
-    st.title("Sri Lanka Tourism Arrival Predictor")
+    inject_custom_styles()
 
     missing_files = check_required_files()
     if missing_files:
@@ -305,9 +526,14 @@ def main() -> None:
     feature_cols = metadata["feature_columns"]
     best_model_name = metadata["best_model_name"]
     latest_date = raw_df["date"].max()
+    latest_arrivals = float(raw_df["arrivals"].iloc[-1])
+
+    render_hero(summary, best_model_name)
+    st.markdown('<div class="mini-note"><strong>Quick start:</strong> Choose your forecast inputs in the left panel, click <code>Generate Forecast</code>, then use tabs to inspect predictions and SHAP explanations.</div>', unsafe_allow_html=True)
 
     with st.sidebar:
-        st.header("Inputs")
+        st.header("Forecast Controls")
+        st.caption("Set your scenario, then generate the forecast.")
         horizon = st.slider("Forecast horizon (months)", min_value=1, max_value=12, value=6)
         scenario_mode = st.radio("Scenario", options=["Baseline", "Custom latest arrivals"], index=0)
         override_val = None
@@ -320,15 +546,27 @@ def main() -> None:
                 help="Useful for what-if analysis before generating forecasts.",
             )
         run_forecast = st.button("Generate Forecast", use_container_width=True)
-        st.markdown('<p class="small-note">Tip: Click Generate Forecast after changing settings.</p>', unsafe_allow_html=True)
+        st.markdown(
+            """
+            <div class="mini-note">
+                <strong>Tip:</strong> Click <code>Generate Forecast</code> every time you change horizon or scenario.
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
         st.markdown("---")
-        st.markdown("**What should you input?**")
-        st.write("1. `Forecast horizon`: how many future months to predict (1-12).")
+        st.markdown("### Input Guide")
+        st.write("1. `Forecast horizon`: future months to predict (1 to 12).")
         st.write("2. `Scenario`:")
-        st.write("- `Baseline`: uses latest real observed value from the dataset.")
-        st.write("- `Custom latest arrivals`: enter your own latest value for what-if testing.")
+        st.write("- `Baseline`: use latest real value from dataset.")
+        st.write("- `Custom latest arrivals`: test what-if conditions.")
         st.write(f"Latest observed month: **{latest_date.strftime('%Y-%m')}**")
-        st.write(f"Latest observed arrivals: **{with_thousands(raw_df['arrivals'].iloc[-1])}**")
+        st.write(f"Latest observed arrivals: **{with_thousands(latest_arrivals)}**")
+        st.markdown("---")
+        st.markdown("### Model Notes")
+        st.write("- `Ridge Regression`: linear baseline.")
+        st.write("- `SVR (RBF)`: kernel-based non-linear method.")
+        st.write("- `Random Forest`: non-linear tree ensemble (best model).")
 
     # Session state keeps the latest forecast visible across Streamlit reruns.
     if run_forecast or "forecast_df" not in st.session_state:
@@ -373,27 +611,52 @@ def main() -> None:
     tab1, tab2, tab3, tab4 = st.tabs(["Start Here", "Predict", "Why This Prediction", "About This App"])
 
     with tab1:
-        st.subheader("How to use this app")
-        st.write("1. Choose input values in the left sidebar.")
-        st.write("2. Click `Generate Forecast`.")
-        st.write("3. Open `Predict` tab to see outputs.")
-        st.write("4. Open `Why This Prediction` to understand feature influence.")
+        st.subheader("Start Here")
+        intro_left, intro_right = st.columns([1.15, 1], gap="large")
 
-        st.subheader("What you will get")
-        st.write("- Future monthly arrival predictions")
-        st.write("- A chart of historical vs predicted values")
-        st.write("- SHAP explainability (which parameters influenced predictions most)")
+        with intro_left:
+            render_soft_card(
+                "What this app does",
+                "Predicts future monthly tourist arrivals to Sri Lanka using trained traditional ML and explains prediction behavior with SHAP.",
+            )
+            render_soft_card(
+                "How to use in 4 steps",
+                "1) Set horizon and scenario in sidebar. 2) Click Generate Forecast. 3) Review the Predict tab. 4) Check Why This Prediction for explainability.",
+            )
+            render_soft_card(
+                "What you will get",
+                "Forecast table, trend chart, KPI summary, downloadable CSV, and feature-level SHAP interpretation.",
+            )
 
-        st.subheader("Models compared (short notes)")
-        st.write("- `Ridge Regression`: linear baseline model.")
-        st.write("- `SVR (RBF)`: non-linear model using support vectors and kernel mapping.")
-        st.write("- `Random Forest Regressor`: tree-ensemble model that captures non-linear patterns.")
+        with intro_right:
+            st.markdown("#### Current Model Snapshot")
+            c1, c2 = st.columns(2)
+            c3, c4 = st.columns(2)
+            c1.metric("Best Model", best_model_name.replace("_", " ").title())
+            c2.metric("Test RMSE", with_thousands(metrics["rmse"]))
+            c3.metric("Test MAE", with_thousands(metrics["mae"]))
+            c4.metric("Test R2", f"{metrics['r2']:.3f}")
+            st.markdown(
+                """
+                <div class="mini-note">
+                    <strong>Meaning:</strong> Lower RMSE/MAE is better. R2 closer to 1 means better fit to real data.
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
-        c1, c2, c3, c4 = st.columns(4)
-        c1.metric("Model", best_model_name.replace("_", " ").title())
-        c2.metric("Test RMSE", with_thousands(metrics["rmse"]))
-        c3.metric("Test MAE", with_thousands(metrics["mae"]))
-        c4.metric("Test R2", f"{metrics['r2']:.3f}")
+        st.markdown("#### Recent Historical Trend (Last 24 Months)")
+        history_plot = raw_df.tail(24).set_index("date")[["arrivals"]]
+        st.line_chart(history_plot)
+
+        if PREDICTION_PLOT_PATH.exists():
+            st.image(str(PREDICTION_PLOT_PATH), caption="Saved Test Plot: Actual vs Predicted (Test Split)")
+
+        with st.expander("Model Comparison Table", expanded=False):
+            show_cols = ["model", "val_rmse", "test_rmse", "test_mae", "test_r2"]
+            display_df = comparison_df[show_cols].copy()
+            display_df["model"] = display_df["model"].str.replace("_", " ").str.title()
+            st.dataframe(display_df, use_container_width=True)
 
         with st.expander("Public Source Details", expanded=False):
             st.write(f"Source owner: **{summary['source_owner']}**")
@@ -403,23 +666,24 @@ def main() -> None:
             for year, url in summary["source_urls"].items():
                 st.write(f"- {year}: {url}")
 
-        with st.expander("Model Comparison (Advanced)", expanded=False):
-            show_cols = ["model", "val_rmse", "test_rmse", "test_mae", "test_r2"]
-            display_df = comparison_df[show_cols].copy()
-            display_df["model"] = display_df["model"].str.replace("_", " ").str.title()
-            st.dataframe(display_df, use_container_width=True)
-
-        st.subheader("Recent historical trend")
-        history_plot = raw_df.tail(24).set_index("date")[["arrivals"]]
-        st.line_chart(history_plot)
-
-        if PREDICTION_PLOT_PATH.exists():
-            st.image(str(PREDICTION_PLOT_PATH), caption="Saved Test Plot: Actual vs Predicted")
-
     with tab2:
-        st.subheader("Prediction Output")
-        st.write(f"Scenario: **{scenario_label}**")
-        st.write(f"Horizon used: **{used_horizon} months**")
+        st.subheader("Predict")
+        p1, p2 = st.columns([1.4, 1], gap="large")
+
+        with p1:
+            render_soft_card(
+                "Active Forecast Setup",
+                f"Scenario: {scenario_label}. Horizon: {used_horizon} month(s). Change values in sidebar and click Generate Forecast to refresh.",
+            )
+        with p2:
+            st.markdown(
+                f"""
+                <div class="mini-note">
+                    <strong>Latest baseline point:</strong> {latest_date.strftime('%Y-%m')} with {with_thousands(latest_arrivals)} arrivals.
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
         first_pred = int(forecast_df["predicted_arrivals"].iloc[0])
         total_pred = int(forecast_df["predicted_arrivals"].sum())
@@ -427,19 +691,20 @@ def main() -> None:
         peak_row = forecast_df.loc[forecast_df["predicted_arrivals"].idxmax()]
 
         f1, f2, f3, f4 = st.columns(4)
-        f1.metric("First predicted month", forecast_df.iloc[0]["date"][:7])
+        f1.metric("First forecast month", forecast_df.iloc[0]["date"][:7])
         f2.metric("First predicted arrivals", with_thousands(first_pred))
         f3.metric("Average monthly prediction", with_thousands(avg_pred))
         f4.metric("Total predicted arrivals", with_thousands(total_pred))
         st.caption(f"Peak month in forecast: {peak_row['date'][:7]} ({with_thousands(peak_row['predicted_arrivals'])})")
 
-        st.markdown("**Output table meaning**")
-        st.write("- `date`: forecasted month")
-        st.write("- `predicted_arrivals`: model's predicted tourist arrivals for that month")
+        st.markdown("#### Output Table Meaning")
+        st.write("- `date`: forecast month.")
+        st.write("- `predicted_arrivals`: predicted arrivals for that month.")
 
         forecast_table = forecast_df[["date", "predicted_arrivals"]].copy()
         st.dataframe(forecast_table, use_container_width=True)
 
+        st.markdown("#### Historical + Forecast Chart")
         hist_plot = history_df.tail(24).copy()
         hist_plot = hist_plot[["date", "arrivals"]].rename(columns={"arrivals": "historical_arrivals"})
         fc_plot = forecast_df[["date", "predicted_arrivals"]].copy()
@@ -459,36 +724,42 @@ def main() -> None:
             st.dataframe(forecast_df.head(1)[["date"] + feature_cols], use_container_width=True)
 
     with tab3:
-        st.subheader("Explainability (SHAP)")
+        st.subheader("Why This Prediction")
         top_shap = shap_df.sort_values("mean_abs_shap", ascending=False).head(10)
         explain_table = build_feature_explain_table(top_shap)
         top_features = top_shap["feature"].head(5).tolist()
 
-        st.markdown("**Method used**: SHAP (SHapley Additive exPlanations)")
-        st.caption("SHAP shows how strongly each parameter influences the model's prediction.")
+        x1, x2 = st.columns([1.1, 1], gap="large")
 
-        st.markdown("**What the model has learned**")
-        st.write(
-            "The model mainly learns temporal dependency and seasonality patterns. "
-            "Recent months and same-month-last-year behavior have the largest effect on next-month arrivals."
-        )
+        with x1:
+            render_soft_card(
+                "Explainability method used",
+                "SHAP (SHapley Additive exPlanations) quantifies how strongly each feature affects predictions.",
+            )
+            render_soft_card(
+                "What the model has learned",
+                "The model learns short-term momentum and yearly seasonality. Recent month behavior and same-month-last-year signals are dominant.",
+            )
+            render_soft_card(
+                "Domain alignment",
+                "Behavior matches tourism demand patterns: lag-based momentum and seasonal cycles are expected to be influential.",
+            )
+            st.markdown("**Most influential features**")
+            st.write(", ".join(f"`{name}`" for name in top_features))
 
-        st.markdown("**Most influential features**")
-        st.write(", ".join(f"`{name}`" for name in top_features))
+        with x2:
+            st.markdown("**Global SHAP Importance (Top 10)**")
+            st.bar_chart(top_shap.set_index("feature")["mean_abs_shap"])
+            st.caption("Higher mean |SHAP| means stronger overall influence on model output.")
+
+        st.markdown("#### Feature-by-Feature Explanation")
         st.dataframe(explain_table, use_container_width=True)
-        st.bar_chart(top_shap.set_index("feature")["mean_abs_shap"])
-
-        st.markdown("**Alignment with domain knowledge**")
-        st.write(
-            "The behavior is consistent with tourism demand dynamics: arrivals usually follow short-term momentum "
-            "(`lag_1`) and yearly seasonality (`lag_12`, month-related features)."
-        )
 
         c_left, c_right = st.columns(2)
         c_left.image(str(SHAP_BEESWARM_PATH), caption="SHAP Summary (Beeswarm)")
         c_right.image(str(SHAP_BAR_PATH), caption="SHAP Global Importance (Bar)")
 
-        st.success("Short interpretation: higher-ranked parameters have stronger influence on prediction.")
+        st.success("Interpretation: higher-ranked SHAP parameters have stronger influence on predictions.")
 
         with st.expander("Recording Checklist", expanded=False):
             st.write("1. Show model metrics and source details in Start Here.")
@@ -498,20 +769,31 @@ def main() -> None:
 
     with tab4:
         st.subheader("About Sri Lanka Tourism Arrival Predictor")
-        st.write(
-            "This app predicts future monthly tourist arrivals to Sri Lanka using a trained traditional "
-            "machine learning model and explains model behavior with SHAP."
-        )
+        a1, a2 = st.columns([1.2, 1], gap="large")
+        with a1:
+            render_soft_card(
+                "Purpose",
+                "This app predicts future monthly tourist arrivals to Sri Lanka using traditional machine learning and provides SHAP-based explainability.",
+            )
+            render_soft_card(
+                "How to interpret outputs",
+                "Use Predict tab for forecast values and trend shape, then use Why This Prediction to identify the strongest influencing parameters.",
+            )
+        with a2:
+            st.markdown(
+                f"""
+                <div class="mini-note">
+                    <strong>Dataset coverage:</strong> {summary['date_range']['start']} to {summary['date_range']['end']}<br/>
+                    <strong>Rows:</strong> {summary['n_rows']} monthly records
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
-        st.markdown("**What this app does**")
-        st.write(
-            "It provides quick monthly tourism-arrival forecasts and a transparent explanation of what drives each prediction."
-        )
-
-        st.markdown("**Model performance (test set)**")
+        st.markdown("#### Model Performance (Test Set)")
         st.dataframe(model_performance_table(comparison_df), use_container_width=True, hide_index=True)
 
-        st.markdown("**What these metrics mean**")
+        st.markdown("#### What These Metrics Mean")
         metric_help_df = pd.DataFrame(
             [
                 {"metric": "RMSE", "description": METRIC_DESCRIPTIONS["RMSE"]},
@@ -522,26 +804,30 @@ def main() -> None:
         )
         st.dataframe(metric_help_df, use_container_width=True, hide_index=True)
 
-        st.markdown("**Top SHAP features (global importance)**")
+        st.markdown("#### Top SHAP Features (Global Importance)")
         st.dataframe(shap_about_table(shap_df), use_container_width=True, hide_index=True)
 
-        st.markdown("**How inputs work**")
+        st.markdown("#### How Inputs Work")
         st.write("- Required: `Forecast horizon` and `Scenario` selection.")
         st.write("- Optional: custom latest-arrivals value for what-if simulation.")
         st.write("- `Baseline` uses actual latest observed data from the dataset.")
 
-        st.markdown("**How to read outputs**")
+        st.markdown("#### How to Read Outputs")
         st.write("- `Predict` tab table gives month-by-month forecast values.")
         st.write("- KPI cards summarize first-month, average, total, and peak forecast levels.")
         st.write("- `Why This Prediction` tab explains feature influence using SHAP.")
 
-        st.markdown("**Data source**")
+        st.markdown("#### Data Source")
         st.write(f"- Owner: {summary['source_owner']}")
         st.write(f"- Collection: {summary['source_collection']}")
         st.write(f"- Coverage: {summary['date_range']['start']} to {summary['date_range']['end']}")
         st.write(f"- Source URL: {summary['source_base_url']}")
 
-        st.markdown("**Important disclaimer**")
+        with st.expander("Year-Specific Source Pages", expanded=False):
+            for year, url in summary["source_urls"].items():
+                st.write(f"- {year}: {url}")
+
+        st.markdown("#### Important Disclaimer")
         st.write("- This is a decision-support forecasting tool, not a guaranteed future value.")
         st.write("- Extreme events or policy shifts may change real outcomes beyond historical patterns.")
 
