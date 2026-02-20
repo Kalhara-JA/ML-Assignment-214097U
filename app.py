@@ -12,6 +12,7 @@ import json
 import subprocess
 import sys
 from pathlib import Path
+from typing import Callable
 
 import joblib
 import numpy as np
@@ -45,6 +46,28 @@ FEATURE_DESCRIPTIONS = {
     "rolling_6": "Average arrivals over last 6 months.",
     "pct_change_1": "Recent month-to-month growth rate.",
     "pct_change_12": "Year-over-year growth rate trend.",
+}
+
+FEATURE_WHY_MATTERS = {
+    "lag_1": "Captures short-term momentum from the previous month.",
+    "lag_12": "Captures yearly seasonal pattern from the same month last year.",
+    "rolling_3": "Smooths recent fluctuations using a short moving average.",
+    "rolling_6": "Captures medium-term trend level.",
+    "pct_change_1": "Represents recent month-to-month growth or decline.",
+    "pct_change_12": "Represents year-over-year direction and intensity.",
+    "month": "Models monthly seasonality differences.",
+    "month_sin": "Seasonality encoding for cyclic month behavior.",
+    "month_cos": "Seasonality encoding for cyclic month behavior.",
+    "year": "Captures long-term drift over years.",
+    "lag_2": "Adds extra short-term memory from two months back.",
+    "lag_3": "Adds extra short-term memory from three months back.",
+}
+
+METRIC_DESCRIPTIONS = {
+    "RMSE": "Root Mean Squared Error. Penalizes larger errors more strongly. Lower is better.",
+    "MAE": "Mean Absolute Error. Average absolute prediction error. Lower is better.",
+    "R2": "Coefficient of determination. Proportion of variance explained by the model. Closer to 1 is better.",
+    "SHAP (mean |value|)": "Average absolute SHAP contribution of a feature. Higher means stronger influence on predictions.",
 }
 
 
@@ -86,6 +109,23 @@ def build_feature_explain_table(shap_df: pd.DataFrame) -> pd.DataFrame:
     out["what_this_parameter_means"] = out["feature"].map(FEATURE_DESCRIPTIONS).fillna("Parameter used by model.")
     out["importance_note"] = "Higher SHAP value means stronger effect on prediction."
     return out
+
+
+def model_performance_table(comparison_df: pd.DataFrame) -> pd.DataFrame:
+    """Build a compact model comparison table for about/overview sections."""
+    out = comparison_df[["model", "test_rmse", "test_mae", "test_r2"]].copy()
+    out["model"] = out["model"].str.replace("_", " ").str.title()
+    out = out.sort_values("test_rmse")
+    return out
+
+
+def shap_about_table(shap_df: pd.DataFrame) -> pd.DataFrame:
+    """Build an about-page SHAP table with rank and short interpretation."""
+    top = shap_df.sort_values("mean_abs_shap", ascending=False).head(8).copy().reset_index(drop=True)
+    top["rank"] = top.index + 1
+    top["why_it_matters"] = top["feature"].map(FEATURE_WHY_MATTERS).fillna("Contributes to model prediction.")
+    top["mean_abs_shap"] = top["mean_abs_shap"].round(2)
+    return top[["rank", "feature", "mean_abs_shap", "why_it_matters"]]
 
 
 @st.cache_data
@@ -136,6 +176,7 @@ def forecast_arrivals(
     feature_cols: list[str],
     horizon: int,
     override_last_value: float | None = None,
+    progress_callback: Callable[[int, int], None] | None = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Produce recursive multi-step forecasts using the trained model."""
     history = history_df[["date", "arrivals"]].copy()
@@ -150,7 +191,7 @@ def forecast_arrivals(
     forecast_rows: list[dict[str, float | str]] = []
 
     # Recursive forecasting: each predicted month is fed back as future lag input.
-    for _ in range(horizon):
+    for idx in range(horizon):
         next_date = all_dates[-1] + pd.DateOffset(months=1)
         feature_row = build_feature_row(all_values, next_date)
         x_one = pd.DataFrame([feature_row])[feature_cols]
@@ -168,6 +209,8 @@ def forecast_arrivals(
 
         all_dates.append(next_date)
         all_values.append(raw_pred)
+        if progress_callback:
+            progress_callback(idx + 1, horizon)
 
     return pd.DataFrame(forecast_rows), history
 
@@ -219,7 +262,6 @@ def main() -> None:
         unsafe_allow_html=True,
     )
     st.title("Sri Lanka Tourism Arrival Predictor")
-    st.caption("Short, beginner-friendly app for monthly arrivals prediction")
 
     missing_files = check_required_files()
     if missing_files:
@@ -290,13 +332,34 @@ def main() -> None:
 
     # Session state keeps the latest forecast visible across Streamlit reruns.
     if run_forecast or "forecast_df" not in st.session_state:
-        forecast_df, history_df = forecast_arrivals(
-            model=model,
-            history_df=raw_df,
-            feature_cols=feature_cols,
-            horizon=horizon,
-            override_last_value=override_val,
-        )
+        progress_bar = None
+        status_box = None
+
+        if run_forecast:
+            status_box = st.empty()
+            status_box.info("Generating forecast...")
+            progress_bar = st.progress(0, text="Starting forecast...")
+
+        def on_progress(step: int, total: int) -> None:
+            if progress_bar is not None:
+                percent = int((step / total) * 100)
+                progress_bar.progress(percent, text=f"Generating month {step} of {total}...")
+
+        with st.spinner("Running model and generating predictions..."):
+            forecast_df, history_df = forecast_arrivals(
+                model=model,
+                history_df=raw_df,
+                feature_cols=feature_cols,
+                horizon=horizon,
+                override_last_value=override_val,
+                progress_callback=on_progress,
+            )
+
+        if progress_bar is not None:
+            progress_bar.progress(100, text="Forecast generated.")
+        if status_box is not None:
+            status_box.success("Forecast complete.")
+
         st.session_state["forecast_df"] = forecast_df
         st.session_state["history_df"] = history_df
         st.session_state["scenario_label"] = scenario_mode
@@ -307,7 +370,7 @@ def main() -> None:
     scenario_label = st.session_state["scenario_label"]
     used_horizon = st.session_state["horizon"]
 
-    tab1, tab2, tab3 = st.tabs(["Start Here", "Predict", "Why This Prediction"])
+    tab1, tab2, tab3, tab4 = st.tabs(["Start Here", "Predict", "Why This Prediction", "About This App"])
 
     with tab1:
         st.subheader("How to use this app")
@@ -320,6 +383,11 @@ def main() -> None:
         st.write("- Future monthly arrival predictions")
         st.write("- A chart of historical vs predicted values")
         st.write("- SHAP explainability (which parameters influenced predictions most)")
+
+        st.subheader("Models compared (short notes)")
+        st.write("- `Ridge Regression`: linear baseline model.")
+        st.write("- `SVR (RBF)`: non-linear model using support vectors and kernel mapping.")
+        st.write("- `Random Forest Regressor`: tree-ensemble model that captures non-linear patterns.")
 
         c1, c2, c3, c4 = st.columns(4)
         c1.metric("Model", best_model_name.replace("_", " ").title())
@@ -423,10 +491,59 @@ def main() -> None:
         st.success("Short interpretation: higher-ranked parameters have stronger influence on prediction.")
 
         with st.expander("Recording Checklist", expanded=False):
-            st.write("1. Show model metrics and source details in Overview.")
+            st.write("1. Show model metrics and source details in Start Here.")
             st.write("2. Change scenario and horizon in sidebar, then click Generate Forecast.")
             st.write("3. Show forecast table/chart and download CSV.")
-            st.write("4. Open Explainability tab and explain top features.")
+            st.write("4. Open Why This Prediction tab and explain top features.")
+
+    with tab4:
+        st.subheader("About Sri Lanka Tourism Arrival Predictor")
+        st.write(
+            "This app predicts future monthly tourist arrivals to Sri Lanka using a trained traditional "
+            "machine learning model and explains model behavior with SHAP."
+        )
+
+        st.markdown("**What this app does**")
+        st.write(
+            "It provides quick monthly tourism-arrival forecasts and a transparent explanation of what drives each prediction."
+        )
+
+        st.markdown("**Model performance (test set)**")
+        st.dataframe(model_performance_table(comparison_df), use_container_width=True, hide_index=True)
+
+        st.markdown("**What these metrics mean**")
+        metric_help_df = pd.DataFrame(
+            [
+                {"metric": "RMSE", "description": METRIC_DESCRIPTIONS["RMSE"]},
+                {"metric": "MAE", "description": METRIC_DESCRIPTIONS["MAE"]},
+                {"metric": "R2", "description": METRIC_DESCRIPTIONS["R2"]},
+                {"metric": "SHAP (mean |value|)", "description": METRIC_DESCRIPTIONS["SHAP (mean |value|)"]},
+            ]
+        )
+        st.dataframe(metric_help_df, use_container_width=True, hide_index=True)
+
+        st.markdown("**Top SHAP features (global importance)**")
+        st.dataframe(shap_about_table(shap_df), use_container_width=True, hide_index=True)
+
+        st.markdown("**How inputs work**")
+        st.write("- Required: `Forecast horizon` and `Scenario` selection.")
+        st.write("- Optional: custom latest-arrivals value for what-if simulation.")
+        st.write("- `Baseline` uses actual latest observed data from the dataset.")
+
+        st.markdown("**How to read outputs**")
+        st.write("- `Predict` tab table gives month-by-month forecast values.")
+        st.write("- KPI cards summarize first-month, average, total, and peak forecast levels.")
+        st.write("- `Why This Prediction` tab explains feature influence using SHAP.")
+
+        st.markdown("**Data source**")
+        st.write(f"- Owner: {summary['source_owner']}")
+        st.write(f"- Collection: {summary['source_collection']}")
+        st.write(f"- Coverage: {summary['date_range']['start']} to {summary['date_range']['end']}")
+        st.write(f"- Source URL: {summary['source_base_url']}")
+
+        st.markdown("**Important disclaimer**")
+        st.write("- This is a decision-support forecasting tool, not a guaranteed future value.")
+        st.write("- Extreme events or policy shifts may change real outcomes beyond historical patterns.")
 
 
 if __name__ == "__main__":

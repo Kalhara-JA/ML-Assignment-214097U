@@ -27,31 +27,13 @@ python src/explain_model.py
 streamlit run app.py
 ```
 
+Live app: [https://lk-tourism-arrival-predictor.streamlit.app/](https://lk-tourism-arrival-predictor.streamlit.app/)
+
 The app includes:
 - Forecast controls (1-12 month horizon)
 - Scenario testing by overriding latest known arrivals
 - Downloadable forecast table
 - Explainability panels (SHAP summary and SHAP global importance)
-
-## Streamlit Cloud Deployment
-This repository is structured for Streamlit Cloud:
-- Entry file: `app.py`
-- Python dependencies: `requirements.txt`
-- Python runtime: `runtime.txt`
-- Streamlit config: `.streamlit/config.toml`
-
-Deploy steps:
-1. Push this project to GitHub.
-2. In Streamlit Cloud, create a new app from the repo.
-3. Set main file path to `app.py`.
-4. Deploy.
-
-First-run behavior on Cloud:
-- If model artifacts are missing, the app automatically runs:
-  - `src/step1_prepare_dataset.py`
-  - `src/train_and_evaluate.py`
-  - `src/explain_model.py`
-- Then it reloads with ready-to-use predictions and SHAP outputs.
 
 ## Main Outputs
 - `data/raw/sri_lanka_tourism_monthly_arrivals_2016_2025.csv`

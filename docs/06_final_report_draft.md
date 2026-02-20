@@ -205,9 +205,11 @@ A Streamlit app is implemented for user-facing model interaction.
 Implemented features:
 - Forecast horizon selection (1-12 months)
 - Scenario override for latest observed value
+- Loading/progress feedback while generating forecasts
 - Forecast table and chart
 - CSV export of forecast results
-- Explainability visualization tab
+- SHAP explainability tab
+- About section with model metric definitions and usage notes
 
 Files:
 - App: `app.py`

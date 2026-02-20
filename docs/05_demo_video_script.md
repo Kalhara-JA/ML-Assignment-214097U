@@ -26,7 +26,7 @@ This outperformed Ridge and SVR in this dataset.
 ## 2:10-3:45 Front-End Demo (Streamlit)
 Now I will show the app.
 
-1. In the Overview tab:
+1. In the Start Here tab:
    - Show source details and model comparison table.
    - Point out key metrics (RMSE, MAE, R2).
 
@@ -34,7 +34,7 @@ Now I will show the app.
    - Set forecast horizon, for example 6 months.
    - First run baseline scenario.
 
-3. In Forecast Output tab:
+3. In Predict tab:
    - Show monthly predictions table.
    - Show historical plus forecast chart.
    - Download forecast CSV.
@@ -44,10 +44,14 @@ Now I will show the app.
    - Enter a different latest value.
    - Click Generate Forecast and show how predictions change.
 
-5. In Explainability tab:
+5. In Why This Prediction tab:
    - Show SHAP feature-importance results.
    - Explain top features: lag_1 and lag_12 are strongest.
    - Show SHAP summary plots for interpretation.
+
+6. In About This App tab:
+   - Briefly show metric definitions (RMSE, MAE, R2).
+   - Show short disclaimer and data-source scope.
 
 ## 3:45-4:30 Critical Discussion
 Main limitations:

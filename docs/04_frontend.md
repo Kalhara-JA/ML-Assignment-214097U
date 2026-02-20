@@ -22,4 +22,4 @@ streamlit run app.py
 1. Open app and show source details and model comparison table.
 2. Run forecast with default settings and explain output chart/table.
 3. Change scenario input (latest arrivals override) and rerun.
-4. Open Explainability tab and discuss top driving features.
+4. Open `Why This Prediction` tab and discuss top driving features.
