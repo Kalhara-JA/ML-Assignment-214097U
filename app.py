@@ -194,6 +194,24 @@ def inject_custom_styles() -> None:
             border-radius: 6px;
             padding: 0.08rem 0.35rem;
         }
+        [data-testid="stSidebar"] [data-baseweb="input"] > div,
+        [data-testid="stSidebar"] [data-baseweb="base-input"] > div {
+            background: #f2f6fa !important;
+            border-color: #20a487 !important;
+        }
+        [data-testid="stSidebar"] [data-baseweb="input"] input,
+        [data-testid="stSidebar"] [data-baseweb="base-input"] input,
+        [data-testid="stSidebar"] input[type="number"] {
+            color: #10324a !important;
+            -webkit-text-fill-color: #10324a !important;
+            caret-color: #10324a !important;
+            font-weight: 600;
+        }
+        [data-testid="stSidebar"] [data-baseweb="input"] input::placeholder,
+        [data-testid="stSidebar"] [data-baseweb="base-input"] input::placeholder {
+            color: #6e7f8d !important;
+            opacity: 1;
+        }
         [data-testid="stSidebar"] .mini-note,
         [data-testid="stSidebar"] .mini-note * {
             color: #4f3e2b !important;
@@ -959,6 +977,16 @@ def main() -> None:
         st.markdown("#### Important Disclaimer")
         st.write("- This is a decision-support forecasting tool, not a guaranteed future value.")
         st.write("- Extreme events or policy shifts may change real outcomes beyond historical patterns.")
+
+        st.markdown("#### Limitations (Short)")
+        st.write("- Dataset is relatively small for time-series ML (monthly records only).")
+        st.write("- COVID-period structural breaks can reduce pattern stability.")
+        st.write("- Model currently uses limited external drivers beyond historical arrivals.")
+
+        st.markdown("#### Future Improvements (Short)")
+        st.write("- Add external features such as flight capacity and macroeconomic indicators.")
+        st.write("- Retrain model regularly as new monthly data is released.")
+        st.write("- Add uncertainty intervals and model monitoring in production.")
 
 
 if __name__ == "__main__":
