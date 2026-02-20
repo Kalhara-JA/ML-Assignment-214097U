@@ -34,6 +34,8 @@ PREDICTION_PLOT_PATH = ROOT / "outputs" / "figures" / "test_actual_vs_predicted.
 SHAP_BEESWARM_PATH = ROOT / "outputs" / "figures" / "shap_summary_beeswarm.png"
 SHAP_BAR_PATH = ROOT / "outputs" / "figures" / "shap_summary_bar.png"
 APP_PUBLIC_URL = "https://lk-tourism-arrival-predictor.streamlit.app/"
+STUDENT_NAME = "Kalhara J.A.K."
+STUDENT_INDEX = "214097U"
 
 FEATURE_DESCRIPTIONS = {
     "year": "Calendar year of the month being predicted.",
@@ -350,6 +352,8 @@ def render_hero(summary: dict, best_model_name: str) -> None:
                 This interface is designed for beginner-friendly prediction and explanation workflows.
             </p>
             <div class="chip-row">
+                <span class="chip">Student: {STUDENT_NAME}</span>
+                <span class="chip">Index: {STUDENT_INDEX}</span>
                 <span class="chip">Best Model: {best_model_name.replace("_", " ").title()}</span>
                 <span class="chip">Coverage: {coverage["start"]} to {coverage["end"]}</span>
                 <span class="chip">Data Source: SLTDA</span>
